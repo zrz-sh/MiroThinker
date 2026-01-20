@@ -878,10 +878,15 @@ class GenericEvaluator(BenchmarkEvaluator):
                         ]
                     }
 
+                    # Get ground truth (None if field not specified or not in data)
+                    ground_truth = None
+                    if self.ground_truth_field and self.ground_truth_field in data:
+                        ground_truth = data[self.ground_truth_field]
+
                     task = BenchmarkTask(
                         task_id=data[self.task_id_field],
                         task_question=data[self.question_field],
-                        ground_truth=data[self.ground_truth_field],
+                        ground_truth=ground_truth,
                         file_path=file_path,
                         metadata=metadata,
                     )

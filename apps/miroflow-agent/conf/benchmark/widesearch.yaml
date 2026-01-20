@@ -1,0 +1,20 @@
+# conf/benchmark/widesearch.yaml
+defaults:
+  - default
+  - _self_
+
+name: "widesearch"
+
+data:
+  data_dir: "/mnt/project_rlinf/zhangruize/data/widesearch"
+  metadata_file: "widesearch.jsonl"
+  field_mapping:
+    task_id_field: "instance_id"
+    task_question_field: "query"
+    ground_truth_field: null  # No ground truth, skip evaluation
+    file_name_field: null
+
+execution:
+  max_tasks: null  # null means no limit, can be overridden via command line
+  max_concurrent: 5
+  pass_at_k: 1

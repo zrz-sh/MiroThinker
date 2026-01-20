@@ -668,8 +668,8 @@ async def extract_info_with_llm(
 
         for attempt, delay in enumerate(connect_retry_delays, 1):
             try:
-                # Make the API request using httpx
-                async with httpx.AsyncClient() as client:
+                # Make the API request using httpx (disable proxy for internal network)
+                async with httpx.AsyncClient(proxy=None, trust_env=False) as client:
                     response = await client.post(
                         SUMMARY_LLM_BASE_URL,
                         headers=headers,

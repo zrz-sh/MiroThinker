@@ -303,6 +303,8 @@ def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
                         "SERPER_BASE_URL": SERPER_BASE_URL,
                         "TENCENTCLOUD_SECRET_ID": TENCENTCLOUD_SECRET_ID,
                         "TENCENTCLOUD_SECRET_KEY": TENCENTCLOUD_SECRET_KEY,
+                        "http_proxy": os.environ.get("http_proxy", ""),
+                        "https_proxy": os.environ.get("https_proxy", ""),
                     },
                 ),
             }
@@ -327,6 +329,8 @@ def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
                         "SUMMARY_LLM_BASE_URL": SUMMARY_LLM_BASE_URL,
                         "SUMMARY_LLM_MODEL_NAME": SUMMARY_LLM_MODEL_NAME,
                         "SUMMARY_LLM_API_KEY": SUMMARY_LLM_API_KEY,
+                        "http_proxy": os.environ.get("http_proxy", ""),
+                        "https_proxy": os.environ.get("https_proxy", ""),
                     },
                 ),
             }
