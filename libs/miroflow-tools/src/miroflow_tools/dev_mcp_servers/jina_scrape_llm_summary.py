@@ -61,14 +61,14 @@ async def scrape_and_extract_info(
         )
 
     # First, scrape the content with Jina
-    scrape_result = await scrape_url_with_jina(url, custom_headers, 24000)
+    scrape_result = await scrape_url_with_jina(url, custom_headers)
 
     # If Jina fails, try direct Python scraping as fallback
     if not scrape_result["success"]:
         logger.warning(
             f"Jina Scrape and Extract Info: Jina scraping failed: {scrape_result['error']}, trying direct Python scraping as fallback"
         )
-        scrape_result = await scrape_url_with_python(url, custom_headers, 24000)
+        scrape_result = await scrape_url_with_python(url, custom_headers)
 
         if not scrape_result["success"]:
             logger.error(
@@ -131,7 +131,7 @@ def _is_huggingface_dataset_or_space_url(url):
 
 
 async def scrape_url_with_jina(
-    url: str, custom_headers: Dict[str, str] = None, max_chars: int = 102400 * 4
+    url: str, custom_headers: Dict[str, str] = None, max_chars: int = 50000
 ) -> Dict[str, Any]:
     """
     Scrape content from a URL and save to a temporary file. Need to read the content from the temporary file.
@@ -369,7 +369,7 @@ async def scrape_url_with_jina(
 
 
 async def scrape_url_with_python(
-    url: str, custom_headers: Dict[str, str] = None, max_chars: int = 102400 * 4
+    url: str, custom_headers: Dict[str, str] = None, max_chars: int = 50000
 ) -> Dict[str, Any]:
     """
     Fallback scraping method using Python's httpx library directly.
