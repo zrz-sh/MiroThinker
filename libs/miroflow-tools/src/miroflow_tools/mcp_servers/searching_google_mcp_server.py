@@ -124,10 +124,14 @@ async def google_search(
         arguments["location"] = location
     if tbs:
         arguments["tbs"] = tbs
+    # Inherit all environment variables (including proxy settings) and override specific ones
+    child_env = os.environ.copy()
+    child_env["SERPER_API_KEY"] = SERPER_API_KEY
+    child_env["SERPER_BASE_URL"] = SERPER_BASE_URL
     server_params = StdioServerParameters(
         command=sys.executable,
         args=["-m", "miroflow_tools.mcp_servers.serper_mcp_server"],
-        env={"SERPER_API_KEY": SERPER_API_KEY, "SERPER_BASE_URL": SERPER_BASE_URL},
+        env=child_env,
     )
     result_content = ""
 

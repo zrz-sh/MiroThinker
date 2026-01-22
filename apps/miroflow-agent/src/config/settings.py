@@ -108,6 +108,9 @@ def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
                         "SERPER_BASE_URL": SERPER_BASE_URL,
                         "JINA_API_KEY": JINA_API_KEY,
                         "JINA_BASE_URL": JINA_BASE_URL,
+                        "http_proxy": os.environ.get("http_proxy", ""),
+                        "https_proxy": os.environ.get("https_proxy", ""),
+                        "no_proxy": os.environ.get("no_proxy", ""),
                     },
                 ),
             }
@@ -254,6 +257,9 @@ def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
                         "REASONING_API_KEY": REASONING_API_KEY,
                         "REASONING_BASE_URL": REASONING_BASE_URL,
                         "REASONING_MODEL_NAME": REASONING_MODEL_NAME,
+                        "http_proxy": os.environ.get("http_proxy", ""),
+                        "https_proxy": os.environ.get("https_proxy", ""),
+                        "no_proxy": os.environ.get("no_proxy", ""),
                     },
                 ),
             }
