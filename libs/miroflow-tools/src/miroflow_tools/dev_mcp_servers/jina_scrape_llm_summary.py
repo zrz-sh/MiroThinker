@@ -61,14 +61,14 @@ async def scrape_and_extract_info(
         )
 
     # First, scrape the content with Jina
-    scrape_result = await scrape_url_with_jina(url, custom_headers)
+    scrape_result = await scrape_url_with_jina(url, custom_headers, 24000)
 
     # If Jina fails, try direct Python scraping as fallback
     if not scrape_result["success"]:
         logger.warning(
             f"Jina Scrape and Extract Info: Jina scraping failed: {scrape_result['error']}, trying direct Python scraping as fallback"
         )
-        scrape_result = await scrape_url_with_python(url, custom_headers)
+        scrape_result = await scrape_url_with_python(url, custom_headers, 24000)
 
         if not scrape_result["success"]:
             logger.error(
