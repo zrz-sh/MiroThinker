@@ -3,7 +3,7 @@
 Convert MiroThinker rollout logs to WideSearch evaluation format.
 
 This script:
-1. Reads task_*.json files from run_1, run_2, run_3, run_4 directories
+1. Reads task_*.json files from run_1_append_final_box_answer, run_2_append_final_box_answer, run_3_append_final_box_answer, run_4_append_final_box_answer directories
 2. Extracts the final assistant response from message history
 3. Converts to WideSearch response format (jsonl files)
 4. Outputs to widesearch_format/ directory in the log folder
@@ -72,8 +72,8 @@ def main():
     parser.add_argument(
         '--log_dir',
         type=str,
-        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-21-16-37-13_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs',
-        help='Path to the MiroThinker log directory containing run_1, run_2, etc.'
+        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-22-06-25-20_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs',
+        help='Path to the MiroThinker log directory containing run_1_append_final_box_answer, run_2_append_final_box_answer, etc.'
     )
     parser.add_argument(
         '--model_config_name',
@@ -84,7 +84,7 @@ def main():
     parser.add_argument(
         '--output_subdir',
         type=str,
-        default='widesearch_format',
+        default='append_answer_widesearch_format',
         help='Subdirectory name for output files'
     )
 
@@ -99,10 +99,10 @@ def main():
 
     # Map run folders to trial indices
     run_folders = [
-        ('run_1', 0),
-        ('run_2', 1),
-        ('run_3', 2),
-        ('run_4', 3),
+        ('run_1_append_final_box_answer', 0),
+        ('run_3_append_final_box_answer', 1),
+        ('run_3_append_final_box_answer', 2),
+        ('run_4_append_final_box_answer', 3),
     ]
 
     total_converted = 0

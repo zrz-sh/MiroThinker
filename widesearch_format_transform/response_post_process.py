@@ -79,13 +79,13 @@ def main():
     parser.add_argument(
         '--input_dir',
         type=str,
-        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-21-16-37-13_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs/widesearch_format',
+        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-22-06-25-20_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs/append_answer_widesearch_format',
         help='Input directory containing response files'
     )
     parser.add_argument(
         '--output_dir',
         type=str,
-        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-21-16-37-13_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs/widesearch_format_post_processed',
+        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-22-06-25-20_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs/append_answer_widesearch_format_post_processed',
         help='Output directory for post-processed files'
     )
     parser.add_argument(
@@ -156,7 +156,7 @@ def main():
 def generate_eval_script(output_dir: str, model_config_name: str = "mirothinker"):
     """Generate the eval.sh script for WideSearch evaluation."""
     log_dir = os.path.dirname(output_dir)
-    result_save_dir = os.path.join(log_dir, 'widesearch_eval_results')
+    result_save_dir = os.path.join(log_dir, 'append_answer_widesearch_eval_results')
 
     script_content = f'''#!/bin/bash
 # WideSearch Evaluation Script
