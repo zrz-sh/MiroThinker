@@ -100,7 +100,7 @@ def main():
     # Map run folders to trial indices
     run_folders = [
         ('run_1_append_final_box_answer', 0),
-        ('run_3_append_final_box_answer', 1),
+        ('run_2_append_final_box_answer', 1),
         ('run_3_append_final_box_answer', 2),
         ('run_4_append_final_box_answer', 3),
     ]
