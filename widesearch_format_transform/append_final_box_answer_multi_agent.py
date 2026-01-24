@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Append final_boxed_answer for tasks that don't have one.
+Append final_boxed_answer for multi-agent tasks that don't have one.
 
 This script:
-1. Finds task JSON files with "No \\boxed{} content found in the final answer."
-2. Uses LLM to generate a final answer based on main_agent_message_history and task_description
+1. Finds multi-agent task JSON files with "No \\boxed{} content found in the final answer."
+2. Uses LLM to generate a final answer based on main_agent_message_history.message_history and task_description
 3. Saves to run_X_append_final_box_answer/ directories (does not overwrite original files)
 """
 
@@ -144,8 +144,10 @@ def process_single_file(input_path: str, output_path: str, client: OpenAI, model
             'had_answer': True
         }
 
-    # Extract task description and message history
+    # Extract task description and message history for multi-agent
     task_description = data.get('input', {}).get('task_description', '')
+
+    # For multi-agent: use main_agent_message_history.message_history
     msg_history = data.get('main_agent_message_history', {})
     messages = msg_history.get('message_history', [])
 
@@ -153,12 +155,23 @@ def process_single_file(input_path: str, output_path: str, client: OpenAI, model
         # Try alternative location
         task_description = data.get('task_description', '')
 
+    if not messages:
+        # If no messages found, skip this file
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return {
+            'file': os.path.basename(input_path),
+            'status': 'skipped',
+            'had_answer': False,
+            'reason': 'no_messages'
+        }
+
     # Generate new answer
     new_answer = generate_final_answer(task_description, messages, client, model)
 
     if new_answer:
         data['final_boxed_answer'] = new_answer
-        data['final_boxed_answer_source'] = 'llm_appended'
+        data['final_boxed_answer_source'] = 'llm_appended_multi_agent'
 
     # Save to output
     with open(output_path, 'w', encoding='utf-8') as f:
@@ -197,6 +210,7 @@ def process_run_folder(run_folder: str, output_folder: str, client: OpenAI, mode
                 print(f"[{i+1}/{len(task_files)}] Processed: {result['file']} (new answer length: {result.get('new_answer_length', 0)})")
             else:
                 skipped_count += 1
+                reason = result.get('reason', 'has_answer')
                 if (i + 1) % 50 == 0:
                     print(f"[{i+1}/{len(task_files)}] Progress... (skipped: {skipped_count})")
 
@@ -204,12 +218,12 @@ def process_run_folder(run_folder: str, output_folder: str, client: OpenAI, mode
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Append final_boxed_answer for tasks without one')
+    parser = argparse.ArgumentParser(description='Append final_boxed_answer for multi-agent tasks without one')
     parser.add_argument(
         '--log_dir',
         type=str,
-        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-22-06-25-20_qwen_qwen-3_mirothinker_v1.0_keep5_widesearch_nulltasks_4runs',
-        help='Path to the MiroThinker log directory'
+        default='/mnt/project_rlinf/zhangruize/project/MAS/MiroThinker/logs/widesearch/2026-01-22-17-13-30_qwen_qwen-3_multi_agent_mirothinker_v1.0_8b_nulltasks_4runs',
+        help='Path to the MiroThinker multi-agent log directory'
     )
     parser.add_argument(
         '--llm_base_url',
@@ -247,8 +261,8 @@ def main():
     total_skipped = 0
 
     for run_num in run_numbers:
-        run_folder = os.path.join(args.log_dir, f'run_{run_num}_append_final_box_answer_seventh')
-        output_folder = os.path.join(args.log_dir, f'run_{run_num}_append_final_box_answer_eighth')
+        run_folder = os.path.join(args.log_dir, f'run_{run_num}_append_final_box_answer_ninth')
+        output_folder = os.path.join(args.log_dir, f'run_{run_num}_append_final_box_answer_tenth')
 
         if not os.path.exists(run_folder):
             print(f"Warning: {run_folder} does not exist, skipping")
