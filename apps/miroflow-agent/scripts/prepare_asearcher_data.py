@@ -53,12 +53,12 @@ def convert_dataset(dataset_name: str, id_field: str, question_field: str, answe
                 answer = data.get(answer_field, "")
 
                 # Handle list-type answers (multiple acceptable answers)
-                # Convert to "answer1 OR answer2" format for LLM judge
+                # Convert to "answer1, answer2" format for LLM judge
                 if isinstance(answer, list):
                     if len(answer) == 1:
                         answer = answer[0]
                     else:
-                        answer = " OR ".join(str(a) for a in answer)
+                        answer = ", ".join(str(a) for a in answer)
 
                 # Create standardized record
                 standardized = {

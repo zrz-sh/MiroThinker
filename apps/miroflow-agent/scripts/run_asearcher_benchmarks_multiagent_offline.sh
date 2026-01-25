@@ -1,8 +1,9 @@
 #!/bin/bash
 
-# Script to run all 7 Asearcher benchmarks with average@4 evaluation
+# Script to run all 7 Asearcher benchmarks with average@4 evaluation (Multi-Agent Offline RAG version)
 # average@4 = 4 independent runs, then average the accuracy
-# Uses mirothinker_v1.5_keep5_max200_widesearch agent setting
+# Uses offline RAG server instead of online search
+# Uses multi_agent_mirothinker_v1.0_8b_offline agent setting
 # Evaluates using LLM as a judge
 
 # Get script directory and change to miroflow-agent root
@@ -13,24 +14,28 @@ cd "$SCRIPT_DIR/.."
 LLM_MODEL=${LLM_MODEL:-"qwen-3"}
 BASE_URL=${BASE_URL:-"http://localhost:61002/v1"}
 LLM_PROVIDER=${LLM_PROVIDER:-"qwen"}
-AGENT_SET=${AGENT_SET:-"mirothinker_v1.5_keep5_max200_widesearch"}
+AGENT_SET=${AGENT_SET:-"multi_agent_mirothinker_v1.0_8b_offline"}
 MAX_CONTEXT_LENGTH=${MAX_CONTEXT_LENGTH:-32768}
 TEMPERATURE=${TEMPERATURE:-1.0}
 API_KEY=${API_KEY:-"xxx"}
 
+# Offline RAG server configuration
+RAG_SERVER_ADDR=${RAG_SERVER_ADDR:-"127.0.0.1:8000"}
+export RAG_SERVER_ADDR
+
 # Benchmark execution settings
 NUM_TASKS=${NUM_TASKS:-null}          # Number of tasks to process (null for all)
-MAX_CONCURRENT=${MAX_CONCURRENT:-3}    # Max concurrent tasks per run
+MAX_CONCURRENT=${MAX_CONCURRENT:-500}    # Max concurrent tasks per run
 NUM_RUNS=${NUM_RUNS:-4}                # Number of runs for average@4
 
-# Proxy settings
+# Proxy settings (ensure local RAG server is not proxied)
 export http_proxy=${http_proxy:-"http://127.0.0.1:1080"}
 export https_proxy=${https_proxy:-"http://127.0.0.1:1080"}
 export no_proxy=${no_proxy:-"localhost,127.0.0.1,0.0.0.0,172.27.236.118"}
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y-%m-%d-%H-%M-%S)
-BASE_RESULTS_DIR="../../logs/asearcher_benchmarks/${TIMESTAMP}_${LLM_PROVIDER}_${LLM_MODEL}_${AGENT_SET}_average_at_${NUM_RUNS}"
+BASE_RESULTS_DIR="../../logs/asearcher_benchmarks_multiagent_offline/${TIMESTAMP}_${LLM_PROVIDER}_${LLM_MODEL}_${AGENT_SET}_average_at_${NUM_RUNS}"
 
 # List of benchmarks to run
 BENCHMARKS=(
@@ -44,18 +49,37 @@ BENCHMARKS=(
 )
 
 echo "=========================================="
-echo "Asearcher Benchmarks - average@${NUM_RUNS} Evaluation"
+echo "Asearcher Benchmarks (Multi-Agent Offline RAG) - average@${NUM_RUNS} Evaluation"
 echo "=========================================="
 echo "LLM Model: $LLM_MODEL"
 echo "LLM Provider: $LLM_PROVIDER"
 echo "Agent Set: $AGENT_SET"
 echo "Base URL: $BASE_URL"
+echo "RAG Server: $RAG_SERVER_ADDR"
 echo "Number of tasks: $NUM_TASKS"
 echo "Max concurrent per run: $MAX_CONCURRENT"
 echo "Number of runs: $NUM_RUNS"
 echo "Results base directory: $BASE_RESULTS_DIR"
 echo "Benchmarks: ${BENCHMARKS[*]}"
 echo "=========================================="
+
+# Step 0: Check if RAG server is running
+echo ""
+echo "Step 0: Checking RAG server availability..."
+if curl -s --max-time 5 "http://${RAG_SERVER_ADDR}/retrieve" \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -d '{"queries":["test"],"topk":1}' > /dev/null 2>&1; then
+    echo "✓ RAG server is running at http://${RAG_SERVER_ADDR}"
+else
+    echo "✗ ERROR: RAG server is not responding at http://${RAG_SERVER_ADDR}"
+    echo ""
+    echo "Please start the RAG server first:"
+    echo "  cd /mnt/project_rlinf/xzxuan/RLinf"
+    echo "  bash examples/search_engine/qdrant_best_async_ip.sh"
+    echo ""
+    exit 1
+fi
 
 # Create results directory
 mkdir -p "$BASE_RESULTS_DIR"
@@ -69,12 +93,12 @@ fi
 
 # Step 1: Run each benchmark with multiple runs
 echo ""
-echo "Step 1: Running benchmarks..."
+echo "Step 1: Running benchmarks with multi-agent offline RAG..."
 echo ""
 
 for BENCHMARK in "${BENCHMARKS[@]}"; do
     echo "=========================================="
-    echo "Running benchmark: $BENCHMARK"
+    echo "Running benchmark: $BENCHMARK (Multi-Agent Offline RAG)"
     echo "=========================================="
 
     BENCHMARK_DIR="${BASE_RESULTS_DIR}/${BENCHMARK}"
@@ -143,11 +167,12 @@ echo "=========================================="
 
 SUMMARY_FILE="${BASE_RESULTS_DIR}/summary.txt"
 
-echo "Asearcher Benchmarks Summary" > "$SUMMARY_FILE"
-echo "============================" >> "$SUMMARY_FILE"
+echo "Asearcher Benchmarks Summary (Multi-Agent Offline RAG)" > "$SUMMARY_FILE"
+echo "=======================================================" >> "$SUMMARY_FILE"
 echo "Date: $(date)" >> "$SUMMARY_FILE"
 echo "LLM Model: $LLM_MODEL" >> "$SUMMARY_FILE"
 echo "Agent Set: $AGENT_SET" >> "$SUMMARY_FILE"
+echo "RAG Server: $RAG_SERVER_ADDR" >> "$SUMMARY_FILE"
 echo "Runs per benchmark: $NUM_RUNS" >> "$SUMMARY_FILE"
 echo "" >> "$SUMMARY_FILE"
 echo "Results (average@${NUM_RUNS}):" >> "$SUMMARY_FILE"

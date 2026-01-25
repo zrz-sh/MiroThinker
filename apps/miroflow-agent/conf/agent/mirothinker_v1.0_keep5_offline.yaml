@@ -1,0 +1,19 @@
+# conf/agent/mirothinker_v1.0_keep5_offline.yaml
+# The name of tools and sub-agents defined in: apps/miroflow-agent/src/config/settings.py
+# Each sub-agent prompt is written in: apps/miroflow-agent/src/utils/prompt_utils.py
+# This configuration uses offline RAG for search and access instead of online services
+defaults:
+  - default
+  - _self_
+
+main_agent:
+  tools:
+    - offline_rag
+  tool_blacklist: []
+  max_turns: 600  # Maximum number of turns for main agent execution
+
+sub_agents:
+
+# Settings for context management
+keep_tool_result: 5
+context_compress_limit: 0  # Enable context compression (>0 = enabled, 0 = disabled).

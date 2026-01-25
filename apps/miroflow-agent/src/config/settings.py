@@ -64,6 +64,9 @@ SUMMARY_LLM_API_KEY = os.environ.get("SUMMARY_LLM_API_KEY")
 SUMMARY_LLM_BASE_URL = os.environ.get("SUMMARY_LLM_BASE_URL")
 SUMMARY_LLM_MODEL_NAME = os.environ.get("SUMMARY_LLM_MODEL_NAME")
 
+# Offline RAG Server
+RAG_SERVER_ADDR = os.environ.get("RAG_SERVER_ADDR", "127.0.0.1:8000")
+
 
 # MCP server configuration generation function
 def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
@@ -380,6 +383,32 @@ def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
                         "miroflow_tools.dev_mcp_servers.task_planner",
                     ],
                     env={"TASK_ID": todo_task_id},
+                ),
+            }
+        )
+
+    if (
+        agent_cfg.get("tools", None) is not None
+        and "offline_rag" in agent_cfg["tools"]
+    ):
+        configs.append(
+            {
+                "name": "offline_rag",
+                "params": StdioServerParameters(
+                    command=sys.executable,
+                    args=[
+                        "-m",
+                        "miroflow_tools.mcp_servers.offline_rag_mcp_server",
+                    ],
+                    env={
+                        "RAG_SERVER_ADDR": RAG_SERVER_ADDR,
+                        "SUMMARY_LLM_BASE_URL": SUMMARY_LLM_BASE_URL,
+                        "SUMMARY_LLM_MODEL_NAME": SUMMARY_LLM_MODEL_NAME,
+                        "SUMMARY_LLM_API_KEY": SUMMARY_LLM_API_KEY,
+                        "http_proxy": os.environ.get("http_proxy", ""),
+                        "https_proxy": os.environ.get("https_proxy", ""),
+                        "no_proxy": os.environ.get("no_proxy", ""),
+                    },
                 ),
             }
         )
