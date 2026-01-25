@@ -40,9 +40,9 @@ BASE_RESULTS_DIR="../../logs/asearcher_benchmarks_offline/${TIMESTAMP}_${LLM_PRO
 # List of benchmarks to run
 BENCHMARKS=(
     # "bamboogle"
-    "hotpotqa"
-    "2wikimultihopqa"
-    "musique"
+    # "hotpotqa"
+    # "2wikimultihopqa"
+    # "musique"
     "nq"
     "popqa"
     "triviaqa"
