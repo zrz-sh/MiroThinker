@@ -615,6 +615,11 @@ class BenchmarkEvaluator(ABC):
         }
         results_dict = {}  # Store results by task_id to maintain order
 
+        # Import required modules
+        from concurrent.futures import as_completed
+        import signal
+        import time
+
         executor = None
         try:
             executor = ProcessPoolExecutor(max_workers=max_concurrent)
@@ -626,8 +631,6 @@ class BenchmarkEvaluator(ABC):
                 future_to_task_id[future] = task_dict["task_id"]
 
             # Collect results as they complete
-            from concurrent.futures import as_completed
-
             for future in as_completed(future_to_task_id):
                 task_id = future_to_task_id[future]
                 try:
@@ -676,8 +679,6 @@ class BenchmarkEvaluator(ABC):
                             )
 
                     # Give processes a short time to terminate gracefully
-                    import time
-
                     time.sleep(0.5)
 
                     # Force kill any remaining processes
@@ -697,9 +698,30 @@ class BenchmarkEvaluator(ABC):
             # Ensure executor is properly cleaned up
             if executor:
                 try:
-                    executor.shutdown(wait=True)
-                except Exception:
-                    pass  # Ignore errors during cleanup
+                    # Force terminate any remaining worker processes before shutdown
+                    if hasattr(executor, "_processes") and executor._processes:
+                        for pid, process in executor._processes.items():
+                            try:
+                                if process.is_alive():
+                                    process.terminate()
+                            except Exception:
+                                pass
+                        # Brief wait for graceful termination
+                        time.sleep(0.1)
+                        # Force kill any zombies
+                        for pid, process in executor._processes.items():
+                            try:
+                                if process.is_alive():
+                                    process.kill()
+                            except Exception:
+                                pass
+
+                    # Use a timeout for shutdown to avoid infinite blocking
+                    # Shutdown with wait=False to avoid blocking on zombie processes
+                    executor.shutdown(wait=False, cancel_futures=True)
+                    print("  Executor shutdown completed (non-blocking)")
+                except Exception as e:
+                    print(f"  Warning: Error during executor cleanup: {e}")
 
         # Reconstruct results in original task order
         processed_results = [results_dict[task.task_id] for task in shuffled_tasks]
